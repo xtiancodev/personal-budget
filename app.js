@@ -1,46 +1,68 @@
-// Creamos el array donde se guardarán los movimientos
-let movimientos = [];
+/***********************************************
+ RESUMEN: CONTROL DE PRESUPUESTO PERSONAL
+ Ahora cada movimiento será un objeto creado con 
+ una función constructora llamada Movimiento.
+***********************************************/
 
-/* ------------------------------------------------
-   FUNCION 1 - Registrar Movimiento (HU original)
--------------------------------------------------- */
-function registrarMovimiento() {
-    let nombre = prompt("Nombre del movimiento:");
+/* -------------------------------------------
+ PASO 1: Crear el array para guardar movimientos
+--------------------------------------------- */
+let movimientos = []; // Lista donde guardaremos cada movimiento
 
-    // Validación: nombre no puede estar vacío
-    while (nombre.trim() === "") {
-        console.log("❌ El nombre no puede estar vacío.");
-        nombre = prompt("Nombre del movimiento:");
+/* -------------------------------------------
+ PASO 2: Definir la función constructora
+--------------------------------------------- */
+// Esta función es el "molde" para crear movimientos nuevos
+
+function Movimiento(tipo, monto, descripcion) {
+
+    // VALIDACIONES BÁSICAS
+    if (tipo !== "ingreso" && tipo !== "egreso") {
+        console.log("❌ Tipo inválido. Usa 'ingreso' o 'egreso'.");
+        return; // Cancelamos si el tipo no es válido
     }
 
-    let tipo = prompt("Tipo (Ingreso / Egreso):");
-    tipo = tipo.toLowerCase();
-
-    // Validación: solo puede ser ingreso o egreso
-    while (tipo !== "ingreso" && tipo !== "egreso") {
-        console.log("❌ Tipo inválido. Debe ser 'Ingreso' o 'Egreso'.");
-        tipo = prompt("Tipo (Ingreso / Egreso):").toLowerCase();
+    if (isNaN(monto) || monto <= 0) {
+        console.log("❌ Monto inválido. Debe ser un número mayor que 0.");
+        return;
     }
 
-    let monto = parseFloat(prompt("Monto:"));
-
-    // Validación: monto debe ser número mayor a 0
-    while (isNaN(monto) || monto <= 0) {
-        console.log("❌ Monto inválido. Debe ser un número mayor a 0.");
-        monto = parseFloat(prompt("Monto:"));
+    if (!descripcion || descripcion.trim() === "") {
+        console.log("❌ La descripción no puede estar vacía.");
+        return;
     }
 
-    // Guardamos el movimiento en el array
-    movimientos.push({
-        nombre: nombre,
-        tipo: tipo,
-        monto: monto
-    });
+    // SI TODO ES CORRECTO, CREAMOS LAS PROPIEDADES
+    this.tipo = tipo;
+    this.monto = monto;
+    this.descripcion = descripcion;
 }
 
-/* ------------------------------------------------
-   FUNCION 2 - Calcular Total del Saldo
--------------------------------------------------- */
+/* -------------------------------------------
+ PASO 3: Función para registrar movimientos
+--------------------------------------------- */
+
+function registrarMovimiento() {
+    let tipo = prompt("Tipo (ingreso/egreso):").toLowerCase();
+    let monto = parseFloat(prompt("Monto:"));
+    let descripcion = prompt("Descripción del movimiento:");
+
+    // Creamos un nuevo objeto Movimiento
+    let nuevoMovimiento = new Movimiento(tipo, monto, descripcion);
+
+    // Si el objeto se creó correctamente, lo agregamos al array
+    if (nuevoMovimiento.tipo) { // Solo si pasó las validaciones
+        movimientos.push(nuevoMovimiento);
+        console.log("✅ Movimiento registrado correctamente.");
+    } else {
+        console.log("❌ No se pudo registrar el movimiento.");
+    }
+}
+
+/* -------------------------------------------
+ PASO 4: Función para calcular saldo total
+--------------------------------------------- */
+
 function calcularTotalSaldo() {
     let total = 0;
 
@@ -55,11 +77,12 @@ function calcularTotalSaldo() {
     return total;
 }
 
-/* ------------------------------------------------
-   FUNCION 3 - Mostrar Resumen General
--------------------------------------------------- */
+/* -------------------------------------------
+ PASO 5: Función para mostrar resumen general
+--------------------------------------------- */
+
 function mostrarResumen() {
-    console.log("\nResumen Final");
+    console.log("\n🔎 RESUMEN GENERAL");
     console.log("-------------------");
     console.log("Total de movimientos registrados: " + movimientos.length);
     let saldo = calcularTotalSaldo();
@@ -78,41 +101,41 @@ function mostrarResumen() {
     }
 
     console.log("\nDesglose por tipo:");
-    if (totalEgresos > 0) console.log("- Egresos: $" + totalEgresos.toFixed(2));
-    if (totalIngresos > 0) console.log("- Ingresos: $" + totalIngresos.toFixed(2));
+    console.log("- Ingresos: $" + totalIngresos.toFixed(2));
+    console.log("- Egresos: $" + totalEgresos.toFixed(2));
 }
 
-/* ------------------------------------------------
-   HU1 - Listar nombres de movimientos usando map()
--------------------------------------------------- */
+/* -------------------------------------------
+ PASO 6: Funciones adicionales (map, filter, find)
+--------------------------------------------- */
+
+// HU1 - Listar nombres de movimientos
 function listarNombresMovimientos() {
-    const nombres = movimientos.map(movimiento => movimiento.nombre);
-    console.log("\nNombres de movimientos registrados:");
+    const nombres = movimientos.map(function(movimiento) {
+        return movimiento.descripcion;
+    });
+    console.log("\n📝 Nombres de movimientos registrados:");
     console.log(nombres);
 }
 
-/* ------------------------------------------------
-   HU2 - Filtrar egresos mayores a $100 usando filter()
--------------------------------------------------- */
+// HU2 - Filtrar egresos mayores a $100
 function filtrarEgresosMayores100() {
-    const egresosMayores = movimientos.filter(movimiento =>
-        movimiento.tipo === "egreso" && movimiento.monto > 100
-    );
+    const egresosMayores = movimientos.filter(function(movimiento) {
+        return movimiento.tipo === "egreso" && movimiento.monto > 100;
+    });
 
-    console.log("\nEgresos mayores a $100:");
+    console.log("\n💰 Egresos mayores a $100:");
     console.log(egresosMayores);
 }
 
-/* ------------------------------------------------
-   HU3 - Buscar movimiento por nombre usando find()
--------------------------------------------------- */
+// HU3 - Buscar movimiento por nombre
 function buscarMovimientoPorNombre() {
-    const nombreBuscado = prompt("Buscar movimiento por nombre:");
-    const movimientoEncontrado = movimientos.find(movimiento =>
-        movimiento.nombre.toLowerCase() === nombreBuscado.toLowerCase()
-    );
+    const nombreBuscado = prompt("Ingresa el nombre del movimiento que quieres buscar:");
+    const movimientoEncontrado = movimientos.find(function(movimiento) {
+        return movimiento.descripcion.toLowerCase() === nombreBuscado.toLowerCase();
+    });
 
-    console.log("\nResultado encontrado:");
+    console.log("\n🔍 Resultado de búsqueda:");
     if (movimientoEncontrado) {
         console.log(movimientoEncontrado);
     } else {
@@ -120,24 +143,24 @@ function buscarMovimientoPorNombre() {
     }
 }
 
-/* ------------------------------------------------
-   Bucle principal para registrar movimientos
--------------------------------------------------- */
+/* -------------------------------------------
+ PASO 7: Bucle principal para registrar movimientos
+--------------------------------------------- */
 
-console.log("Registro de Gastos");
-console.log("-------------------");
+console.log("Bienvenido al Control de Presupuesto Personal");
+console.log("---------------------------------------------");
 
 let continuar = "si";
 
-while (continuar.toLowerCase() === "si") {
+while (continuar === "si") {
     registrarMovimiento();
-
-    continuar = prompt("¿Registrar otro movimiento? (si/no):");
+    continuar = prompt("¿Deseas registrar otro movimiento? (si/no):").toLowerCase();
 }
 
-/* ------------------------------------------------
-   Mostramos todos los resúmenes solicitados
--------------------------------------------------- */
+/* -------------------------------------------
+ PASO 8: Mostrar resultados finales
+--------------------------------------------- */
+
 mostrarResumen();
 listarNombresMovimientos();
 filtrarEgresosMayores100();
